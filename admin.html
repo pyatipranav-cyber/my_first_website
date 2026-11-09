@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Niyaaz Management Console (demo)</title><link rel="stylesheet" href="style.css">
+<style>body{padding:0}.w{max-width:1000px;margin:auto;padding:2rem 5vw}.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1rem 0}.k b{font-size:2rem;color:var(--gold);display:block}label{display:block;margin:.6rem 0 .1rem;font-size:.85rem}table{width:100%;border-collapse:collapse}td,th{padding:.4rem;border-bottom:1px solid #fff2;text-align:left}.bar{height:14px;background:var(--gold);border-radius:7px}.warn{color:#ff9f8a}</style></head><body>
+<div class="w"><p><a class="mgmt" href="index.html">← Back to site</a></p><h1 style="font-size:2.2rem">Management Console</h1>
+<p class="warn">Demo console. Data is stored only in this browser. A real launch needs login and a database (see README).</p>
+<div class="k"><div class="card"><b id="o">0</b>Web orders</div><div class="card"><b id="v">₹0</b>Order value</div><div class="card"><b id="l">0</b>Rewards members</div><div class="card"><b id="a">₹0</b>Avg order</div></div>
+<div class="card"><h3>Profit uplift simulator</h3>
+<label>Monthly dine-in+delivery orders per outlet</label><input id="i1" type="number" value="3000">
+<label>Average bill (₹)</label><input id="i2" type="number" value="450">
+<label>Food margin % (your real figure)</label><input id="i3" type="number" value="25">
+<label>Repeat-visit uplift from rewards %</label><input id="i4" type="number" value="8">
+<label>Add-on attach rate from dessert/kebab prompts %</label><input id="i5" type="number" value="10">
+<label>Outlets</label><input id="i6" type="number" value="5">
+<h2 id="r" style="color:var(--gold)"></h2><p class="note">Your assumptions in, your numbers out. Not a forecast. Validate with a 60-day pilot at one outlet.</p></div>
+<div class="card" style="margin-top:1rem"><h3>Orders by item</h3><div id="it"></div></div>
+<div class="card" style="margin-top:1rem"><h3>Rewards members</h3><table id="lt"></table></div></div>
+<script src="menu.js"></script><script>
+var $=function(s){return document.querySelector(s)},J=function(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}};
+var o=J('no'),l=J('nl'),v=o.reduce(function(s,x){return s+x.v},0),cnt={};
+o.forEach(function(x){for(var i in x.c)cnt[i]=(cnt[i]||0)+x.c[i]});
+$('#o').textContent=o.length;$('#v').textContent='₹'+v;$('#l').textContent=l.length;$('#a').textContent='₹'+(o.length?Math.round(v/o.length):0);
+var mx=Math.max.apply(null,Object.values(cnt).concat([1]));
+$('#it').innerHTML=Object.keys(cnt).map(function(i){return '<div>'+MENU[i].n+' ('+cnt[i]+')<div class="bar" style="width:'+cnt[i]/mx*100+'%"></div></div>'}).join('')||'<p class="note">No orders yet. Place a test order on the site.</p>';
+$('#lt').innerHTML='<tr><th>Name</th><th>Phone</th><th>City</th></tr>'+l.map(function(x){return '<tr><td>'+esc(x.n)+'</td><td>'+esc(x.p)+'</td><td>'+esc(x.c)+'</td></tr>'}).join('');
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return '&#'+c.charCodeAt(0)+';'})}
+function sim(){var g=function(i){return +$(i).value||0},base=g('#i1')*g('#i2')*g('#i6'),extra=base*(g('#i4')/100)+base*(g('#i5')/100)*.15,pr=extra*g('#i3')/100;
+$('#r').textContent='+₹'+Math.round(pr).toLocaleString('en-IN')+' / month extra gross profit'}
+document.querySelectorAll('input[type=number]').forEach(function(e){e.oninput=sim});sim();
+</script></body></html>
